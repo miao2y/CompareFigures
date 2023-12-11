@@ -3,28 +3,22 @@ import pandas as pd
 import read_data
 from utils import check_phase
 from scipy.spatial.distance import cdist
-import matplotlib.pyplot as plt
 
-coord_threshold = 0.4
-average_threshold = 0.4
-threshold = 0.3
+threshold = 0.05
+allow_err_count = 5
+decimal_point = 4
 
 # 读取数据
-data1 = read_data.read_data("AlZn_4.dat")
+data1 = read_data.read_data("AlZn_1.dat")
 data2 = read_data.read_data("AlZn_2.dat")
 
 data1 = data1[['T', 'x(Al)', 'x(Zn)', 'phase_name']]
 data2 = data2[['T', 'x(Al)', 'x(Zn)', 'phase_name']]
+data1['T'] = data1['T'].round(decimal_point)
+data2['T'] = data2['T'].round(decimal_point)
 
 # 将数据标准化
 numeric_columns = ['T', 'x(Al)', 'x(Zn)']
-# data1[numeric_columns] = (data1[numeric_columns] - data1[numeric_columns].mean()) / data1[numeric_columns].std()
-# data2[numeric_columns] = (data2[numeric_columns] - data2[numeric_columns].mean()) / data2[numeric_columns].std()
-# print(data1.head())
-# print(data2.head())
-
-# print(data1['phase_name'].unique().tolist())
-# print(data2['phase_name'].unique().tolist())
 
 # 检查相类型是否相同
 if not check_phase(data1, data2):
@@ -35,55 +29,54 @@ phase_names = data1['phase_name'].unique().tolist()
 
 # 遍历每种相图
 for phase_name in phase_names:
-    a = data1[data1['phase_name'] == phase_name]
-    b = data2[data2['phase_name'] == phase_name]
+    a_old = data1[data1['phase_name'] == phase_name]
+    b_old = data2[data2['phase_name'] == phase_name]
     # 合并两个对象
-    # merged_df = pd.concat([a, b])
+    merged_df = pd.concat([a_old, b_old])
 
     # 计算合并后对象的均值
-    # mean_values = merged_df[numeric_columns].mean()
-    # std_values = merged_df[numeric_columns].std()
+    mean_values = merged_df[numeric_columns].mean()
+    std_values = merged_df[numeric_columns].std()
+    max_values = merged_df[numeric_columns].max()
+    min_values = merged_df[numeric_columns].min()
 
-    # a = (a[numeric_columns] - mean_values) / std_values
-    # b = (b[numeric_columns] - mean_values) / std_values
+    a = (a_old[numeric_columns] - min_values) / (max_values - min_values)
+    b = (b_old[numeric_columns] - min_values) / (max_values - min_values)
 
     # print(a, b)
-    distance = cdist(a[numeric_columns], b[numeric_columns], metric='seuclidean')
+    distance = cdist(a[numeric_columns], b[numeric_columns])
 
     new_data = np.min(distance, axis=1)
-    print(phase_name, new_data)
+    # print(phase_name, new_data)
 
     greater_count = np.sum(new_data > threshold)
-    if greater_count > 5:
+    if greater_count > allow_err_count:
         indices = np.where(new_data > threshold)[0]
         elements = new_data[indices]
-        print(elements)
-        a.to_csv("a.csv")
-        b.to_csv("b.csv")
-        np.savetxt("new_data.csv", new_data, delimiter=",")
+        print("A to B Test Failed!")
+        print(a_old.to_numpy()[indices])
+        print(indices, elements)
         exit(1)
     else:
-        print(phase_name, "Passed")
+        print(phase_name, "Passed, err_count: ", greater_count)
         print("===============")
 
     # print(a, b)
-    distance = cdist(b[numeric_columns], a[numeric_columns], metric='seuclidean')
+    distance = cdist(b[numeric_columns], a[numeric_columns])
 
     new_data = np.min(distance, axis=1)
-    print(phase_name, new_data)
+    # print(phase_name, new_data)
 
     greater_count = np.sum(new_data > threshold)
-    if greater_count > 5:
+    if greater_count > allow_err_count:
         indices = np.where(new_data > threshold)[0]
         elements = new_data[indices]
-        print(phase_name, "B->A 超过阈值", greater_count)
-        print(elements)
-        a.to_csv("a.csv")
-        b.to_csv("b.csv")
-        np.savetxt("new_data.csv", new_data, delimiter=",")
+        print("B to A Test Failed!")
+        print(b_old.to_numpy()[indices])
+        print(indices, elements)
         exit(1)
     else:
-        print(phase_name, "Passed")
+        print(phase_name, "Passed, err_count: ", greater_count)
         print("===============")
 
     # if phase_name == 'FCC_A1+HCP_A3+FCC_A1':
