@@ -4,22 +4,30 @@ import read_data
 from utils import check_phase
 from scipy.spatial.distance import cdist
 
-threshold = 0.05
-allow_err_count = 5
-decimal_point = 4
+
+def round(data, decimal_points):
+    if 'T' in decimal_points and decimal_points['T'] is not None:
+        data['T'] = data['T'].round(decimal_points['T'])
+    if 'x(Al)' in decimal_points and decimal_points['x(Al)'] is not None:
+        data['x(Al)'] = data['x(Al)'].round(decimal_points['x(Al)'])
+    if 'x(Zn)' in decimal_points and decimal_points['x(Zn)'] is not None:
+        data['x(Zn)'] = data['x(Zn)'].round(decimal_points['x(Zn)'])
+    return data
 
 
-def check(fname1, fname2):
+def check(fname1, fname2, threshold, allow_err_count, decimal_points={}):
+    print(decimal_points)
     # 读取数据
     data1 = read_data.read_data(fname1)
     data2 = read_data.read_data(fname2)
 
     data1 = data1[['T', 'x(Al)', 'x(Zn)', 'phase_name']]
     data2 = data2[['T', 'x(Al)', 'x(Zn)', 'phase_name']]
-    data1['T'] = data1['T'].round(decimal_point)
-    data2['T'] = data2['T'].round(decimal_point)
 
-    # 将数据标准化
+    data1 = round(data1, decimal_points)
+    data2 = round(data2, decimal_points)
+
+
     numeric_columns = ['T', 'x(Al)', 'x(Zn)']
 
     # 检查相类型是否相同

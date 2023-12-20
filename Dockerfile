@@ -10,4 +10,4 @@ COPY ./ .
 #
 #RUN cat requirements.txt
 #
-ENTRYPOINT ["flask","--app","api","run","--port","7777"]
+ENTRYPOINT ["flask","--app","api","run","--port","7777", "--host","0.0.0.0"]
