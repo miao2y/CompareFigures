@@ -27,7 +27,6 @@ def check(fname1, fname2, threshold, allow_err_count, decimal_points={}):
     data1 = round(data1, decimal_points)
     data2 = round(data2, decimal_points)
 
-
     numeric_columns = ['T', 'x(Al)', 'x(Zn)']
 
     # 检查相类型是否相同
@@ -145,3 +144,167 @@ def check(fname1, fname2, threshold, allow_err_count, decimal_points={}):
 
     print("Same Figure")
     return True, "Same Figure"
+
+
+class Comparator:
+    numeric_columns = ['T', 'x(Al)', 'x(Zn)']
+    phase_column = None
+    threshold = 0.1
+    allow_err_count = 5
+    decimal_points = {}
+
+    def __init__(self, numeric_columns, phase_column):
+        self.numeric_columns = numeric_columns
+        self.phase_column = phase_column
+
+    def check_phase(self, a, b):
+        print(a[self.phase_column].unique().tolist())
+        print(b[self.phase_column].unique().tolist())
+        return set(a[self.phase_column].unique().tolist()) == set(b[self.phase_column].unique().tolist())
+
+    def checkGT(self, fname1, fname2):
+        # 读取数据
+        data1 = read_data.read_data(fname1)
+        data2 = read_data.read_data(fname2)
+
+        data1 = data1[self.numeric_columns]
+        data2 = data2[self.numeric_columns]
+
+        data1 = round(data1, self.decimal_points)
+        data2 = round(data2, self.decimal_points)
+
+        numeric_columns = self.numeric_columns
+        a_old = data1
+        b_old = data2
+        # 合并两个对象
+        merged_df = pd.concat([a_old, b_old])
+
+        # 计算合并后对象的均值
+        mean_values = merged_df[numeric_columns].mean()
+        std_values = merged_df[numeric_columns].std()
+        max_values = merged_df[numeric_columns].max()
+        min_values = merged_df[numeric_columns].min()
+
+        a = (a_old[numeric_columns] - min_values) / (max_values - min_values)
+        b = (b_old[numeric_columns] - min_values) / (max_values - min_values)
+
+        # print(a, b)
+        distance = cdist(a[numeric_columns], b[numeric_columns])
+
+        new_data = np.min(distance, axis=1)
+        # print(phase_name, new_data)
+
+        greater_count = np.sum(new_data > self.threshold)
+        if greater_count > self.allow_err_count:
+            indices = np.where(new_data > self.threshold)[0]
+            elements = new_data[indices]
+            print("A to B Test Failed!")
+            print(a_old.to_numpy()[indices])
+            print(indices, elements)
+            return False, "Not same"
+        else:
+            print("Passed, err_count: ", greater_count)
+            print("===============")
+
+        # print(a, b)
+        distance = cdist(b[numeric_columns], a[numeric_columns])
+
+        new_data = np.min(distance, axis=1)
+        # print(phase_name, new_data)
+
+        greater_count = np.sum(new_data > self.threshold)
+        if greater_count > self.allow_err_count:
+            indices = np.where(new_data > self.threshold)[0]
+            elements = new_data[indices]
+            print("B to A Test Failed!")
+            print(b_old.to_numpy()[indices])
+            print(indices, elements)
+            return False, "Phase:" + " not same"
+        else:
+            print("Passed, err_count: ", greater_count)
+            print("===============")
+
+        print("Same Figure")
+        return True, "Same Figure"
+
+    def check(self, fname1, fname2):
+        # 读取数据
+        data1 = read_data.read_data(fname1)
+        data2 = read_data.read_data(fname2)
+
+        data1 = data1[self.numeric_columns + [self.phase_column]]
+        data2 = data2[self.numeric_columns + [self.phase_column]]
+
+        data1 = round(data1, self.decimal_points)
+        data2 = round(data2, self.decimal_points)
+
+        numeric_columns = self.numeric_columns
+
+        # 检查相类型是否相同
+        if not self.check_phase(data1, data2):
+            return False, "Phase not same"
+
+        phase_names = data1[self.phase_column].unique().tolist()
+
+        # 遍历每种相图
+        for phase_name in phase_names:
+            a_old = data1[data1[self.phase_column] == phase_name]
+            b_old = data2[data2[self.phase_column] == phase_name]
+            # 合并两个对象
+            merged_df = pd.concat([a_old, b_old])
+
+            # 计算合并后对象的均值
+            mean_values = merged_df[numeric_columns].mean()
+            std_values = merged_df[numeric_columns].std()
+            max_values = merged_df[numeric_columns].max()
+            min_values = merged_df[numeric_columns].min()
+
+            a = (a_old[numeric_columns] - min_values) / (max_values - min_values)
+            b = (b_old[numeric_columns] - min_values) / (max_values - min_values)
+
+            # print(a, b)
+            distance = cdist(a[numeric_columns], b[numeric_columns])
+
+            new_data = np.min(distance, axis=1)
+            # print(phase_name, new_data)
+
+            greater_count = np.sum(new_data > self.threshold)
+            if greater_count > self.allow_err_count:
+                indices = np.where(new_data > self.threshold)[0]
+                elements = new_data[indices]
+                print("A to B Test Failed!")
+                print(a_old.to_numpy()[indices])
+                print(indices, elements)
+                return False, "Phase:" + phase_name + " not same"
+            else:
+                print(phase_name, "Passed, err_count: ", greater_count)
+                print("===============")
+
+            # print(a, b)
+            distance = cdist(b[numeric_columns], a[numeric_columns])
+
+            new_data = np.min(distance, axis=1)
+            # print(phase_name, new_data)
+
+            greater_count = np.sum(new_data > self.threshold)
+            if greater_count > self.allow_err_count:
+                indices = np.where(new_data > self.threshold)[0]
+                elements = new_data[indices]
+                print("B to A Test Failed!")
+                print(b_old.to_numpy()[indices])
+                print(indices, elements)
+                return False, "Phase:" + phase_name + " not same"
+            else:
+                print(phase_name, "Passed, err_count: ", greater_count)
+                print("===============")
+        print("Same Figure")
+        return True, "Same Figure"
+
+
+if __name__ == '__main__':
+    comparator = Comparator(numeric_columns=['T', 'G'], phase_column='phase_name')
+    comparator.threshold = 0.001
+    comparator.allow_err_count = 1
+    comparator.decimal_points = {'T': 0, 'G': 0}
+    res = comparator.checkGT("Fe_Alloy_3.dat", "Fe_Alloy_4.dat")
+    print(res)
