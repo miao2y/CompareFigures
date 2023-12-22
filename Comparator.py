@@ -44,6 +44,8 @@ class Comparator:
         data = data.fillna(0)
         data = round_with_config(data, self.profile.decimal_points)
         data = PhaseNameChecker.sort_df(data, self.profile.phase_column)
+        # data 添加一列：index
+        data['index'] = data.index.tolist()
         return data
 
     def check(self, file_name1: str, file_name2: str) -> List[CompareResult]:
@@ -62,10 +64,10 @@ class Comparator:
         phase_result = self.check_phase(data1, data2)
         result_list.append(phase_result)
 
-        phase_names = phase_result.detail.a_phase_names_set + phase_result.detail.b_phase_names_set
+        phase_names = set(phase_result.detail.a_phase_names_set + phase_result.detail.b_phase_names_set)
 
         # 遍历每种相图
-        for phase_name in list(phase_names):
+        for phase_name in phase_names:
             print("=============")
             print("phase_name:", phase_name)
             # print("data1.head()", data1.head())
@@ -77,7 +79,8 @@ class Comparator:
                     success=False,
                     phase_name=phase_name,
                     message="由于 A 中相图" + phase_name + "不存在，无法进行距离比较",
-                    b_wrong_indexes=b_old.index.tolist().copy(),
+                    b_wrong_indexes=b_old.index.tolist(),
+                    b_wrong_rows=b_old.to_dict(orient="records")
                 ))
                 continue
             if b_old.shape[0] == 0:
@@ -85,7 +88,8 @@ class Comparator:
                     success=False,
                     phase_name=phase_name,
                     message="由于 B 中相图" + phase_name + "不存在，无法进行距离比较",
-                    a_wrong_indexes=a_old.index.tolist().copy(),
+                    a_wrong_indexes=a_old.index.tolist(),
+                    a_wrong_rows=b_old.to_dict(orient="records")
                 ))
                 continue
 
@@ -117,20 +121,21 @@ class Comparator:
                     message="A -> B:" + phase_name + "距离校验失败，超出预设点数：" + str(
                         greater_count) + '/' + str(
                         self.profile.allow_err_count),
-                    a_wrong_indexes=indices.tolist().copy(),
+                    a_wrong_indexes=a_old.iloc[indices]['index'].tolist(),
+                    a_wrong_rows=a_old.iloc[indices].to_dict(orient="records"),
                 ))
                 continue
 
             # print(a, b)
             distance = cdist(b[numeric_columns], a[numeric_columns])
 
-            b_greater_count = np.min(distance, axis=1)
+            b_min_distance = np.min(distance, axis=1)
             # print(phase_name, new_data)
 
-            greater_count = np.sum(b_greater_count > self.profile.threshold)
+            greater_count = np.sum(b_min_distance > self.profile.threshold)
             if greater_count > self.profile.allow_err_count:
-                indices = np.where(b_greater_count > self.profile.threshold)[0]
-                elements = b_greater_count[indices]
+                indices = np.where(b_min_distance > self.profile.threshold)[0]
+                elements = b_min_distance[indices]
 
                 result_list.append(CompareResultFactory.create_distance_result(
                     success=False,
@@ -138,7 +143,8 @@ class Comparator:
                     message="B -> A:" + phase_name + "距离校验失败，超出预设点数：" + str(
                         greater_count) + '/' + str(
                         self.profile.allow_err_count),
-                    b_wrong_indexes=indices.tolist().copy(),
+                    b_wrong_indexes=b_old.iloc[indices]['index'].tolist(),
+                    b_wrong_rows=b_old.iloc[indices].to_dict(orient="records")
                 ))
                 continue
 

@@ -12,17 +12,14 @@ class PhaseNameChecker:
 
     @staticmethod
     def sort(phase_name: str) -> str:
-        print("from:", phase_name)
         factors = PhaseNameChecker.trim(phase_name).split('+')
         factors.sort()
-        # factors.join('+')
-        print("to:", '+'.join(factors))
         return '+'.join(factors)
 
     @staticmethod
     def sort_df(data: DataFrame, phase_name_col: str) -> DataFrame:
         print(data.head())
-        data[[phase_name_col]] = data[[phase_name_col]].parallel_applymap(lambda n: PhaseNameChecker.sort(n))
+        data[[phase_name_col]] = data[[phase_name_col]].map(lambda n: PhaseNameChecker.sort(n))
         print(data.head())
         return data
 

@@ -1,5 +1,5 @@
 from typing import List, Set
-
+import pandas as pd
 from ResultDetail.CompareResultDetail import CompareResultDetail
 
 
@@ -11,3 +11,7 @@ class DistanceCompareResultDetail(CompareResultDetail):
 
     # b 错误节点的索引
     b_wrong_indexes: List[int] = []
+
+    a_wrong_rows: List[pd.DataFrame] = []
+
+    b_wrong_rows: List[pd.DataFrame] = []
