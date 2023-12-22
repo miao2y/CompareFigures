@@ -1,16 +1,18 @@
+from typing import List
+
 import pandas as pd
 import re
 
 
 class DatReader:
-    file_name = None
-    data = None
+    file_name: str = None
+    data: pd.DataFrame = None
 
     def __init__(self, file_name):
         self.file_name = file_name
         self.data = self.read(file_name)
 
-    def read(self, file_name):
+    def read(self, file_name: str) -> pd.DataFrame:
         # 打开文件并读取内容
         with open(file_name, 'r') as file:
             content = file.read()
@@ -31,5 +33,5 @@ class DatReader:
 
         return pd.read_csv(new_f_name)
 
-    def get_headers(self):
+    def get_headers(self) -> List[str]:
         return self.data.columns.tolist()
