@@ -22,7 +22,7 @@ class PhaseNameChecker:
     @staticmethod
     def sort_df(data: DataFrame, phase_name_col: str) -> DataFrame:
         print(data.head())
-        data[[phase_name_col]] = data[[phase_name_col]].applymap(lambda b: PhaseNameChecker.sort(b))
+        data[[phase_name_col]] = data[[phase_name_col]].parallel_applymap(lambda n: PhaseNameChecker.sort(n))
         print(data.head())
         return data
 
