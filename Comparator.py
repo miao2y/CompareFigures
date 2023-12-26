@@ -26,7 +26,7 @@ class Comparator:
             list(map(lambda n: PhaseNameChecker.sort(n), b[self.profile.phase_column].unique().tolist())))
         result_detail = PhaseNameCompareResultDetail()
         result_detail.result = set(a_phases) == set(b_phases)
-        result_detail.message = "两相图相位不同"
+        result_detail.message = "两相图相位相同" if result_detail.result else '两相图相位不同'
         result_detail.a_phase_names_set = a_phases
         result_detail.b_phase_names_set = b_phases
         result_detail.a_missing_phase_names = list(set(b_phases) - set(a_phases))
@@ -108,6 +108,8 @@ class Comparator:
             # print(a, b)
             distance = cdist(a[numeric_columns], b[numeric_columns])
             a_min_distances = np.min(distance, axis=1)
+            a_min_distance_indices = np.argmin(distance, axis=1)
+
             # print(phase_name, new_data)
 
             greater_count = np.sum(a_min_distances > self.profile.threshold)
@@ -130,7 +132,7 @@ class Comparator:
             distance = cdist(b[numeric_columns], a[numeric_columns])
 
             b_min_distance = np.min(distance, axis=1)
-            # print(phase_name, new_data)
+            b_min_distance_indices = np.argmin(distance, axis=1)
 
             greater_count = np.sum(b_min_distance > self.profile.threshold)
             if greater_count > self.profile.allow_err_count:
