@@ -89,7 +89,7 @@ class Comparator:
                     phase_name=phase_name,
                     message="由于 B 中相图" + phase_name + "不存在，无法进行距离比较",
                     a_wrong_indexes=a_old.index.tolist(),
-                    a_wrong_rows=b_old.to_dict(orient="records")
+                    a_wrong_rows=a_old.to_dict(orient="records")
                 ))
                 continue
 
