@@ -10,10 +10,9 @@ pip install -r requirements.txt
 ```python
 from src.Comparator import Comparator
 from pandarallel import pandarallel
-import json
 
 from src.CompareResultEncoder import CompareResultEncoder
-from src import Profile
+from src.Profile import Profile
 
 pandarallel.initialize()
 
@@ -28,6 +27,7 @@ if __name__ == '__main__':
     comparator = Comparator(profile=profile)
     res = comparator.check("./uploads/Fe_1.dat", "./uploads/Fe_2.dat")
     print(CompareResultEncoder().encode(res))
+
 ```
 或
 ```bash
