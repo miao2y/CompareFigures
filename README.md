@@ -1,5 +1,9 @@
 # CompareFigures
 比较两相图是否相同
+## 安装依赖
+```bash
+pip install -r requirements.txt
+```
 
 ## 使用方法
 
@@ -24,4 +28,8 @@ if __name__ == '__main__':
     comparator = Comparator(profile=profile)
     res = comparator.check("./uploads/Fe_1.dat", "./uploads/Fe_2.dat")
     print(CompareResultEncoder().encode(res))
+```
+或
+```bash
+python run.py
 ```
