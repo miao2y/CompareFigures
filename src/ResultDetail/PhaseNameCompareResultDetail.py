@@ -1,4 +1,4 @@
-from ResultDetail.CompareResultDetail import CompareResultDetail
+from src.ResultDetail.CompareResultDetail import CompareResultDetail
 from typing import List, Set
 
 

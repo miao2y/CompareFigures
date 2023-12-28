@@ -1,13 +1,13 @@
 import json
 from flask_cors import CORS
 
-from flask import Flask, flash, request, redirect, url_for
+from flask import Flask, request
 from werkzeug.utils import secure_filename
 import os
 
-from CompareResultEncoder import CompareResultEncoder
-from DatReader import DatReader
-from Profile import Profile
+from src.CompareResultEncoder import CompareResultEncoder
+from src.DatReader import DatReader
+from src import Profile
 from run import Comparator
 
 app = Flask(__name__)

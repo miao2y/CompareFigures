@@ -2,9 +2,8 @@ import json
 
 import numpy as np
 
-from CompareResult import CompareResult
-from ResultDetail.CompareResultDetail import CompareResultDetail
-from ResultDetail.PhaseNameCompareResultDetail import PhaseNameCompareResultDetail
+from src.CompareResult import CompareResult
+from src.ResultDetail.CompareResultDetail import CompareResultDetail
 
 
 class CompareResultEncoder(json.JSONEncoder):

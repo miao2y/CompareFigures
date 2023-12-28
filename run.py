@@ -1,9 +1,8 @@
-from Comparator import Comparator
+from src.Comparator import Comparator
 from pandarallel import pandarallel
-import json
 
-from CompareResultEncoder import CompareResultEncoder
-from Profile import Profile
+from src.CompareResultEncoder import CompareResultEncoder
+from src.Profile import Profile
 
 pandarallel.initialize()
 

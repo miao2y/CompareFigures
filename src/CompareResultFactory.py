@@ -2,8 +2,8 @@ from typing import List
 
 import pandas as pd
 
-from CompareResult import CompareResult
-from ResultDetail.DistanceCompareResultDetail import DistanceCompareResultDetail
+from src.CompareResult import CompareResult
+from src.ResultDetail.DistanceCompareResultDetail import DistanceCompareResultDetail
 
 
 class CompareResultFactory:

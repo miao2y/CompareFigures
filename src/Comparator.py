@@ -3,13 +3,13 @@ import pandas as pd
 from typing import List
 from scipy.spatial.distance import cdist
 
-from CompareResult import CompareResult
-from CompareResultFactory import CompareResultFactory
-from DatReader import DatReader
-from PhaseNameChecker import PhaseNameChecker
-from Profile import Profile
-from ResultDetail.PhaseNameCompareResultDetail import PhaseNameCompareResultDetail
-from utils import round_with_config
+from src.CompareResultFactory import CompareResultFactory
+from src.DatReader import DatReader
+from src.PhaseNameChecker import PhaseNameChecker
+from src import Profile
+from src.ResultDetail.PhaseNameCompareResultDetail import PhaseNameCompareResultDetail
+from src.CompareResult import CompareResult
+from src.utils import round_with_config
 
 
 class Comparator:

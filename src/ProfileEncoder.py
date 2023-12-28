@@ -1,6 +1,6 @@
 import json
 
-from Profile import Profile
+from src import Profile
 
 
 class ProfileEncoder(json.JSONEncoder):
