@@ -18,7 +18,7 @@ pandarallel.initialize()
 
 if __name__ == '__main__':
     profile = Profile(
-        numeric_columns=['T', 'f(@Bcc#1)', 'f(@Bcc#2)'],
+        columns_re=['T', 'f(@Bcc#1)', 'f(@Bcc#2)'],
         phase_column='phase_name',
         threshold=0.05,
         allow_err_count=5,

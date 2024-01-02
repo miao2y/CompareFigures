@@ -40,8 +40,10 @@ class Comparator:
     # 由于两个相之间+的顺序可能不同
     # 所以需要对两个相进行排序（字典序）
     def prepossess_data(self, data: pd.DataFrame) -> pd.DataFrame:
+        print("decimal_points", self.profile.decimal_points)
         data = data[self.profile.numeric_columns + [self.profile.phase_column]]
         data = data.fillna(0)
+        print(data.head())
         data = round_with_config(data, self.profile.decimal_points)
         data = PhaseNameChecker.sort_df(data, self.profile.phase_column)
         # data 添加一列：index
@@ -53,13 +55,30 @@ class Comparator:
         result_list: List[CompareResult] = []
 
         # 读取数据
-        data1 = DatReader(file_name1).data
-        data2 = DatReader(file_name2).data
+        try:
+            data1 = DatReader(file_name1).data
+            self.profile.reader = DatReader(file_name1)
+        except Exception as e:
+            result_list.append(CompareResultFactory.create_default_result(
+                success=False,
+                message=file_name1 + "数据文件不存在",
+            ))
+            return result_list
+
+        # 读取数据
+        try:
+            data2 = DatReader(file_name2).data
+        except Exception as e:
+            result_list.append(CompareResultFactory.create_default_result(
+                success=False,
+                message=file_name1 + "数据文件不存在",
+            ))
+            return result_list
+
+        numeric_columns = self.profile.numeric_columns
 
         data1 = self.prepossess_data(data1)
         data2 = self.prepossess_data(data2)
-
-        numeric_columns = self.profile.numeric_columns
 
         phase_result = self.check_phase(data1, data2)
         result_list.append(phase_result)
