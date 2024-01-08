@@ -33,3 +33,8 @@ if __name__ == '__main__':
 ```bash
 python run.py
 ```
+### 启用 API 模式访问
+需要与 Compare-Figures-FE 搭配使用
+```bash
+flask --app api run --port 7777
+```
