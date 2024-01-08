@@ -17,12 +17,14 @@ class DatReader:
         with open(file_name, 'r') as file:
             content = file.read()
 
+        content = re.sub(r'\n[A-Z]\t.*', '', content)
         # 替换所有的制表符为逗号
         content = (content
-                   .replace('S\nK', 'S\tK')
+                   # .replace('\nK\t', '\tK\t')
+                   # .replace('\nC\t', '\tC\t')
                    .replace('\t', ',')
                    )
-        content = re.sub(r'\nK,.*', r'', content)
+        # content = re.sub(r'\nK,.*', r'', content)
         content = re.sub(r'\n,+\n', r'\n', content)
 
         new_f_name = file_name + '.csv'
