@@ -15,7 +15,12 @@ from src.Profile import Profile
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
-app.config['UPLOAD_FOLDER'] = './uploads'
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')
+
+folder = os.path.exists(app.config['UPLOAD_FOLDER'])
+
+if not folder:
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 
 def get_file_path(filename: str) -> str:
