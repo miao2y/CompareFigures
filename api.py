@@ -15,12 +15,22 @@ from src.Profile import Profile
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
-app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(__file__), 'uploads')
 
-folder = os.path.exists(app.config['UPLOAD_FOLDER'])
+def exists_and_mkdir(path: str):
+    folder_path = os.path.join(os.path.dirname(__file__), path)
+    folder = os.path.exists(folder_path)
 
-if not folder:
-    os.makedirs(app.config['UPLOAD_FOLDER'])
+    if not folder:
+        os.makedirs(folder_path)
+
+    return folder_path
+
+
+upload_folder = exists_and_mkdir('uploads')
+exists_and_mkdir('uploads/figure1s')
+exists_and_mkdir('uploads/figure2s')
+
+app.config['UPLOAD_FOLDER'] = upload_folder
 
 
 def get_file_path(filename: str) -> str:
@@ -36,7 +46,7 @@ def single():
     phase_name_col = request.values.get("phase_name_col")
 
     profile = Profile(
-        force_numeric_columns=reg_list,
+        force_column_names=reg_list,
         phase_column=phase_name_col,
         threshold=threshold,
         allow_err_count=allow_err_count,
@@ -65,11 +75,11 @@ def multiple():
     threshold: float = float(request.values.get("threshold"))
     allow_err_count: int = int(request.values.get("allow_err_count"))
     decimal_point: int = int(request.values.get("decimal_point"))
-    reg_list: List[str] = json.loads(request.values.get("reg_list"))
+    force_column_indexes: List[int] = json.loads(request.values.get("force_column_indexes"))
     phase_name_col: str = request.values.get("phase_name_col")
 
     profile = Profile(
-        reg_list=reg_list,
+        force_column_indexes=force_column_indexes,
         phase_column=phase_name_col,
         threshold=threshold,
         allow_err_count=allow_err_count,

@@ -8,12 +8,12 @@ pandarallel.initialize()
 
 if __name__ == '__main__':
     profile = Profile(
-        force_numeric_columns=['T', 'f(@Bcc#1)', 'f(@Bcc#2)'],
+        reg_list=['^T$', '^[f|F]\(.*\)$'],  # 列名满足 T 和 f(*) 会被自动选中，详见正则表达式用法
         phase_column='phase_name',
         threshold=0.05,
         allow_err_count=5,
-        decimal_points={'T': 1, 'f(@Bcc#1)': 2, 'f(@Bcc#2)': 2}
+        decimal_point=3
     )
     comparator = Comparator(profile=profile)
-    res = comparator.check("./uploads/Fe_1.dat", "./uploads/Fe_2.dat")
+    res = comparator.check("./uploads/AlZn_1.dat", "./uploads/AlZn_1.dat")
     print(CompareResultEncoder().encode(res))

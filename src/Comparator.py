@@ -57,7 +57,7 @@ class Comparator:
         # 读取数据
         try:
             data1 = DatReader(file_name1).data
-            self.profile.reader = DatReader(file_name1)
+            self.profile.set_all_column_names(DatReader(file_name1).get_headers())
         except Exception as e:
             result_list.append(CompareResultFactory.create_default_result(
                 success=False,
